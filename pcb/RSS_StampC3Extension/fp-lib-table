@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "M5Stack")(type "KiCad")(uri "${KIPRJMOD}/M5_Hardware-master/KiCad/Footprints/M5Stack.pretty")(options "")(descr ""))
+)
