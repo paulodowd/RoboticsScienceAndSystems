@@ -4755,7 +4755,7 @@
 	)
 	(text "IR in"
 		(exclude_from_sim no)
-		(at 197.866 92.964 0)
+		(at 198.374 90.424 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4815,7 +4815,7 @@
 		)
 		(uuid "81b304ce-1451-4a14-bc5e-9e1ca1d4a2f9")
 	)
-	(text "IR Output Modulation\nR4 = 10k, R5,6,7 = 270"
+	(text "IR Output Modulation\nR4 = 10k, R5,6,7 = 68 or 46 ohms"
 		(exclude_from_sim no)
 		(at 20.828 89.154 0)
 		(effects
@@ -4981,6 +4981,12 @@
 		(uuid "9d76e1c0-25ed-4ace-9765-233d6ba2a5a1")
 	)
 	(junction
+		(at 52.07 67.31)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9f34da9f-5fb3-455b-ad62-a6d231525f39")
+	)
+	(junction
 		(at 44.45 119.38)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4991,6 +4997,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a971421b-ee2b-43dd-b8b4-0078104c15a7")
+	)
+	(junction
+		(at 69.85 67.31)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ab43d708-9d2e-42f8-97fa-8689f1b8c013")
 	)
 	(junction
 		(at 119.38 176.53)
@@ -5028,9 +5040,15 @@
 		(color 0 0 0 0)
 		(uuid "efd91d02-b3d5-4b50-814c-70c9c4f867a7")
 	)
+	(junction
+		(at 34.29 66.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ff516973-26be-46ed-b15e-51e23bcaa82c")
+	)
 	(wire
 		(pts
-			(xy 34.29 67.31) (xy 40.64 67.31)
+			(xy 34.29 66.04) (xy 41.91 66.04)
 		)
 		(stroke
 			(width 0)
@@ -5047,6 +5065,16 @@
 			(type default)
 		)
 		(uuid "032b2de2-4451-4d13-bbfe-9238d62456a5")
+	)
+	(wire
+		(pts
+			(xy 52.07 67.31) (xy 58.42 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "04c009cd-0084-45f8-9ad1-6e54bc156ecd")
 	)
 	(wire
 		(pts
@@ -5080,7 +5108,7 @@
 	)
 	(wire
 		(pts
-			(xy 34.29 76.2) (xy 34.29 78.74)
+			(xy 34.29 77.47) (xy 34.29 78.74)
 		)
 		(stroke
 			(width 0)
@@ -5310,7 +5338,7 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 76.2) (xy 52.07 78.74)
+			(xy 52.07 77.47) (xy 52.07 78.74)
 		)
 		(stroke
 			(width 0)
@@ -5450,6 +5478,16 @@
 	)
 	(wire
 		(pts
+			(xy 69.85 67.31) (xy 69.85 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "775535b7-74e5-46ff-aeef-7396a1757d4b")
+	)
+	(wire
+		(pts
 			(xy 38.1 186.69) (xy 38.1 190.5)
 		)
 		(stroke
@@ -5540,6 +5578,16 @@
 	)
 	(wire
 		(pts
+			(xy 52.07 67.31) (xy 52.07 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "90c807b0-9026-4943-b08e-dd44220b05d5")
+	)
+	(wire
+		(pts
 			(xy 52.07 59.69) (xy 52.07 60.96)
 		)
 		(stroke
@@ -5557,16 +5605,6 @@
 			(type default)
 		)
 		(uuid "97b3ef6a-6b18-4178-ba87-4bde1124cee9")
-	)
-	(wire
-		(pts
-			(xy 52.07 67.31) (xy 58.42 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "97b90717-2139-48f5-b349-f4d9d6e457f8")
 	)
 	(wire
 		(pts
@@ -5610,7 +5648,7 @@
 	)
 	(wire
 		(pts
-			(xy 69.85 76.2) (xy 69.85 78.74)
+			(xy 69.85 77.47) (xy 69.85 78.74)
 		)
 		(stroke
 			(width 0)
@@ -5677,6 +5715,16 @@
 			(type default)
 		)
 		(uuid "b7d60c6f-68e3-4057-bc38-9e9fd5d48994")
+	)
+	(wire
+		(pts
+			(xy 34.29 67.31) (xy 34.29 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bc4beb82-7224-4049-bc5d-c3d53512a961")
 	)
 	(wire
 		(pts
@@ -6142,6 +6190,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "G0"
+		(shape input)
+		(at 41.91 66.04 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0d11bba4-a5ac-401f-a94f-557f9cc637e9")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 46.7205 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -6652,7 +6722,7 @@
 			)
 		)
 	)
-	(global_label "G5"
+	(global_label "G4"
 		(shape input)
 		(at 76.2 67.31 0)
 		(fields_autoplaced yes)
@@ -7330,28 +7400,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "G0"
-		(shape input)
-		(at 40.64 67.31 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "fb48ebaa-a8d9-4ac8-8a47-e5a4ebaca515")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.4505 67.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -8159,7 +8207,7 @@
 	)
 	(symbol
 		(lib_id "Sensor_Optical:TEPT4400")
-		(at 31.75 71.12 0)
+		(at 31.75 72.39 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8168,7 +8216,7 @@
 		(fields_autoplaced yes)
 		(uuid "52eb06d3-8317-41ca-8386-f04c34dae09c")
 		(property "Reference" "Q4"
-			(at 36.83 69.1006 0)
+			(at 36.83 70.3706 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8177,7 +8225,7 @@
 			)
 		)
 		(property "Value" "TEPT4300"
-			(at 36.83 71.6406 0)
+			(at 36.83 72.9106 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8186,7 +8234,7 @@
 			)
 		)
 		(property "Footprint" "LED_THT:LED_D3.0mm_Clear"
-			(at 43.942 74.676 0)
+			(at 43.942 75.946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8195,7 +8243,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.vishay.com/docs/81341/tept4400.pdf"
-			(at 31.75 71.12 0)
+			(at 31.75 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8204,7 +8252,7 @@
 			)
 		)
 		(property "Description" "Ambient Light Sensor, NPN Epitaxial Planar Phototransistor, T-1"
-			(at 31.75 71.12 0)
+			(at 31.75 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8365,7 +8413,7 @@
 	)
 	(symbol
 		(lib_id "Sensor_Optical:TEPT4400")
-		(at 49.53 71.12 0)
+		(at 49.53 72.39 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8374,7 +8422,7 @@
 		(fields_autoplaced yes)
 		(uuid "7293a544-ed5e-4933-80b1-5415650d9f61")
 		(property "Reference" "Q5"
-			(at 54.61 69.1006 0)
+			(at 54.61 70.3706 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8383,7 +8431,7 @@
 			)
 		)
 		(property "Value" "TEPT4300"
-			(at 54.61 71.6406 0)
+			(at 54.61 72.9106 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8392,7 +8440,7 @@
 			)
 		)
 		(property "Footprint" "LED_THT:LED_D3.0mm_Clear"
-			(at 61.722 74.676 0)
+			(at 61.722 75.946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8401,7 +8449,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.vishay.com/docs/81341/tept4400.pdf"
-			(at 49.53 71.12 0)
+			(at 49.53 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8410,7 +8458,7 @@
 			)
 		)
 		(property "Description" "Ambient Light Sensor, NPN Epitaxial Planar Phototransistor, T-1"
-			(at 49.53 71.12 0)
+			(at 49.53 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9545,7 +9593,7 @@
 	)
 	(symbol
 		(lib_id "Sensor_Optical:TEPT4400")
-		(at 67.31 71.12 0)
+		(at 67.31 72.39 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9554,7 +9602,7 @@
 		(fields_autoplaced yes)
 		(uuid "e50118e4-1f3f-4830-8571-f1615152bbf5")
 		(property "Reference" "Q6"
-			(at 72.39 69.1006 0)
+			(at 72.39 70.3706 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9563,7 +9611,7 @@
 			)
 		)
 		(property "Value" "TEPT4300"
-			(at 72.39 71.6406 0)
+			(at 72.39 72.9106 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9572,7 +9620,7 @@
 			)
 		)
 		(property "Footprint" "LED_THT:LED_D3.0mm_Clear"
-			(at 79.502 74.676 0)
+			(at 79.502 75.946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9581,7 +9629,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.vishay.com/docs/81341/tept4400.pdf"
-			(at 67.31 71.12 0)
+			(at 67.31 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9590,7 +9638,7 @@
 			)
 		)
 		(property "Description" "Ambient Light Sensor, NPN Epitaxial Planar Phototransistor, T-1"
-			(at 67.31 71.12 0)
+			(at 67.31 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)

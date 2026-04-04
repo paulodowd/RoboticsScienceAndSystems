@@ -25,7 +25,7 @@ class Robot_c {
     }
 
     void initialise() {
-      Wire.setPins(9, 8); // SDA, SCL
+//      Wire.setPins(9, 8); // SDA, SCL
       Wire.begin();
       Wire.setClock(400000);
       setupLED();
