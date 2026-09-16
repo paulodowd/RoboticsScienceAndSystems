@@ -80,24 +80,20 @@ void Controller_c::update(Robot_c &robot, RobotWifiAP_c &server) {
       setSignal(1);
     } else {
 
-      // Paul: check this line later. It might be causing jitter on the
-      // motors.
-//          robot.setMotorPWM(0, 0);
     }
   }
 
   // The user has started the demonstration, so we run the line following
   // controller code.
   if (signal == 1) {
-    //runLineFollower(robot, now);
-    reportOdometry(robot,now);
+    runLineFollower(robot, now);
   }
 
   // Use another TaskTimer_c to limit how often we transmit telemetry data
   // on WiFi and Serial.
   if (telemetry_timer.isReady(now)) {
     telemetry_timer.resetTimer(now);
-   // publishTelemetry(robot, server, now);
+    publishTelemetry(robot, server, now);
   }
 }
 
@@ -109,25 +105,6 @@ bool Controller_c::lineDetected(const Robot_c &robot) const {
   return false;
 }
 
-void Controller_c::reportOdometry( Robot_c &robot, unsigned long now ) {
-
-  if( mode != STOPPED ) {
-
-    robot.getMotionStatus();
-
-    if( robot.motion_status.state == MOTION_STATUS_IDLE ) {
-//          robot.startMoveDistance(100);
-      robot.startRotateAngle(PI/2.0);
-
-    } else if( robot.motion_status.state == MOTION_STATUS_COMPLETE ) {
-      setSignal(0);
-      mode = STOPPED;
-
-    }
-
-    printf("%lu, %f, %f, %f\n", robot.getMillis(), robot.pose.x, robot.pose.y, robot.pose.theta );
-  }
-}
 
 void Controller_c::runLineFollower(Robot_c &robot, unsigned long now) {
   bool line_detected = lineDetected(robot);
@@ -196,5 +173,6 @@ void Controller_c::publishTelemetry(Robot_c &robot, RobotWifiAP_c &server, unsig
     robot.surface.reading[4],
     signal
   );
-  }
+ }
 }
+
