@@ -6,8 +6,8 @@ class RobotSurface_c {
 /**
  * @brief Ideal image-sampling model for one downward-facing surface sensor.
  * @details Local coordinates are in mm in the robot frame. The source image
- * is treated as 1 pixel per mm, centred on the world origin, with image y
- * inverted relative to world y.
+ * is treated as 1 pixel per mm, centred on its configured world offset, with
+ * image y inverted relative to world y.
  */
 class SurfaceSensorModel_c {
   String name;
@@ -27,17 +27,20 @@ class SurfaceSensorModel_c {
 
   /**
    * @brief Converts an image brightness sample into an ideal sensor reading.
-   * @param image Surface image, centred on the world origin.
+   * @param image Surface image, centred on the supplied world offset.
+   * @param surfaceOffsetX Surface-image x offset in world millimetres.
+   * @param surfaceOffsetY Surface-image y offset in world millimetres.
    * @param robotX Robot x position in mm.
    * @param robotY Robot y position in mm.
    * @param robotTheta Robot heading in radians.
    * @return 2000 for black, 400 for white or a location outside the image.
    */
-  float sample(PImage image, float robotX, float robotY, float robotTheta) {
+  float sample(PImage image, float surfaceOffsetX, float surfaceOffsetY,
+    float robotX, float robotY, float robotTheta) {
     float worldX = robotX + localX * cos(robotTheta) - localY * sin(robotTheta);
     float worldY = robotY + localX * sin(robotTheta) + localY * cos(robotTheta);
-    int pixelX = floor(image.width / 2.0 + worldX);
-    int pixelY = floor(image.height / 2.0 - worldY);
+    int pixelX = floor(image.width / 2.0 + worldX - surfaceOffsetX);
+    int pixelY = floor(image.height / 2.0 - worldY + surfaceOffsetY);
     if (pixelX < 0 || pixelX >= image.width || pixelY < 0 || pixelY >= image.height) {
       return 400;
     }

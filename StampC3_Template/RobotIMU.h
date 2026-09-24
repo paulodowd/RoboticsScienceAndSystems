@@ -53,8 +53,9 @@ class RobotIMU_c {
      * @brief Detects and configures the 3Pi+ inertial sensors.
      * @return true when the LSM6DS33 accelerometer/gyroscope was found.
      *
-     * The LSM6 is configured using the Pololu library defaults: +/-2 g for
-     * acceleration and +/-245 degrees/s for angular velocity. The LIS3MDL is
+     * The LSM6 is configured at 104 Hz using +/-2 g for acceleration and
+     * +/-245 degrees/s for angular velocity. Block data update keeps each
+     * multi-byte axis value coherent while it is read. The LIS3MDL is
      * configured for +/-4 gauss if it is present. A missing magnetometer does
      * not prevent the acceleration and gyro exercises from running.
      *
@@ -73,13 +74,20 @@ class RobotIMU_c {
     /**
      * @brief Checks whether a new accelerometer and gyro sample is available.
      * @return true when both LSM6DS33 data-ready flags are set.
-     * @note Polling this method avoids repeatedly logging the same sensor data.
+     * @note Call read() only when this returns true to avoid repeatedly logging
+     * the same accelerometer/gyro data during normal operation. This method does
+     * not validate the status-register transfer or check magnetometer readiness.
      */
     bool isSampleReady();
 
     /**
-     * @brief Acquires and caches one raw IMU sample.
-     * @return true when the LSM6DS33 was available and a sample was acquired.
+     * @brief Attempts to read the IMU and caches the library's raw axis values.
+     * @return false if the LSM6DS33 was not detected during initialisation;
+     * otherwise true after the library reads, without validating their transfers.
+     * @warning A true result does not confirm a complete or fresh sample. Check
+     * isSampleReady() before calling, and do not treat read() as an I2C integrity
+     * check. The sequence number counts read calls that return true, not verified
+     * sensor updates.
      *
      * The timestamp is taken immediately after the I2C reads. It is a StampC3
      * acquisition timestamp, not an exact timestamp generated inside either

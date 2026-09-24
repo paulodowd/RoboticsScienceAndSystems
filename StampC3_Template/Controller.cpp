@@ -64,7 +64,7 @@ void Controller_c::update(Robot_c &robot, RobotWifiAP_c &server) {
   robot.getSurfaceSensors();
 
   // Ask the robot for the latest encoder information, and then use this
-  // to update the odometry on board the StampC3 (see Odometry.h)
+  // to update the odometry on board the StampC3 (see OdometryModel.h).
   if (robot.getEncoders()) {
     odometry.update(robot.getLeftEncoderCount(), robot.getRightEncoderCount());
   }
@@ -72,14 +72,13 @@ void Controller_c::update(Robot_c &robot, RobotWifiAP_c &server) {
   // Pose estimation from the Pololu 3Pi robot itself.
   robot.getPose();
 
-  // Monitor the button on the StampC3.  If the user presses it, we change
-  // the signal variable to 1.  This is used to activate the Digital Twin
-  // simulation demo.
+  // While waiting, a button press sets signal to 1 and starts the physical
+  // robot's line follower, even without Processing connected. The transmitted
+  // signal also starts an armed Digital Twin live comparison. This is a start
+  // control, not a start/stop toggle; further presses are ignored while signal is 1.
   if (signal == 0) {
     if (robot.isButtonPressed()) {
       setSignal(1);
-    } else {
-
     }
   }
 
@@ -87,6 +86,7 @@ void Controller_c::update(Robot_c &robot, RobotWifiAP_c &server) {
   // controller code.
   if (signal == 1) {
     runLineFollower(robot, now);
+
   }
 
   // Use another TaskTimer_c to limit how often we transmit telemetry data
@@ -94,17 +94,18 @@ void Controller_c::update(Robot_c &robot, RobotWifiAP_c &server) {
   if (telemetry_timer.isReady(now)) {
     telemetry_timer.resetTimer(now);
     publishTelemetry(robot, server, now);
+
   }
 }
 
 bool Controller_c::lineDetected(const Robot_c &robot) const {
-    if (robot.surface.reading[2] >= LINE_THRESHOLD) {
-      return true;
-    }
+  // Note: only using the central sensor to detect a line.
+  if (robot.surface.reading[2] >= LINE_THRESHOLD) {
+    return true;
+  }
 
   return false;
 }
-
 
 void Controller_c::runLineFollower(Robot_c &robot, unsigned long now) {
   bool line_detected = lineDetected(robot);
@@ -155,24 +156,23 @@ void Controller_c::publishTelemetry(Robot_c &robot, RobotWifiAP_c &server, unsig
     robot.surface.reading[4],
     signal
   );
-  if( Serial ) { // If serial is connected
+  if ( Serial ) { // If serial is connected
     Serial.printf(
-    "%lu,%.2f,%.2f,%.5f,%d,%d,%ld,%ld,%u,%u,%u,%u,%u,%u\n",
-    timestamp_ms,
-    odometry.pose.x,
-    odometry.pose.y,
-    odometry.pose.theta,
-    robot.getLeftMotorPWM(),
-    robot.getRightMotorPWM(),
-    (long)robot.getLeftEncoderCount(),
-    (long)robot.getRightEncoderCount(),
-    robot.surface.reading[0],
-    robot.surface.reading[1],
-    robot.surface.reading[2],
-    robot.surface.reading[3],
-    robot.surface.reading[4],
-    signal
-  );
- }
+      "%lu,%.2f,%.2f,%.5f,%d,%d,%ld,%ld,%u,%u,%u,%u,%u,%u\n",
+      timestamp_ms,
+      odometry.pose.x,
+      odometry.pose.y,
+      odometry.pose.theta,
+      robot.getLeftMotorPWM(),
+      robot.getRightMotorPWM(),
+      (long)robot.getLeftEncoderCount(),
+      (long)robot.getRightEncoderCount(),
+      robot.surface.reading[0],
+      robot.surface.reading[1],
+      robot.surface.reading[2],
+      robot.surface.reading[3],
+      robot.surface.reading[4],
+      signal
+    );
+  }
 }
-

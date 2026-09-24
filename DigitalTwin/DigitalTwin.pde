@@ -6,6 +6,10 @@ import java.net.*;
 final int WINDOW_WIDTH = 1000;
 /** @brief Initial application-window height in screen pixels. */
 final int WINDOW_HEIGHT = 800;
+/** @brief Initial surface-image x offset from the world origin, in mm. */
+final float SURFACE_OFFSET_X_MM = 135.0;
+/** @brief Initial surface-image y offset from the world origin, in mm. */
+final float SURFACE_OFFSET_Y_MM = 0.0;
 
 /** @brief Application-level owner of the simulated robot and UI. */
 Simulator simulator;
@@ -26,7 +30,7 @@ void setup() {
   //surface.setSize(displayWidth, displayHeight);
   //surface.setLocation(0, 0);
   surface.setTitle("CW2026 Digital Twin");
-  simulator = new Simulator(this);
+  simulator = new Simulator(this, SURFACE_OFFSET_X_MM, SURFACE_OFFSET_Y_MM);
   
 }
 

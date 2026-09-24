@@ -100,16 +100,20 @@ class RobotWifiAP_c {
     /**
        @brief Formats and sends a string to the active client.
        @param format printf-style format string.
-       @return true when the formatted string was sent completely.
-       @warning Formatted output is limited to 255 payload bytes.
+       @return true when all retained buffer bytes were written to the client.
+       @warning Output beyond 255 payload bytes is silently truncated. A true
+       result does not guarantee that the entire requested message was retained.
     */
     bool printf(const char* format, ...);
 
     /**
        @brief Formats and sends one newline-terminated string to the active client.
        @param format printf-style format string.
-       @return true when the formatted line was sent completely.
-       @warning Formatted output is limited to 254 payload bytes plus newline.
+       @return true when the prepared buffer bytes, including newline, were written.
+       @warning Keep the formatted payload to at most 253 bytes before newline.
+       The current implementation mishandles longer output: it can send an
+       embedded null byte and, above 254 payload bytes, an uninitialised byte.
+       A true result does not detect truncation or these formatting errors.
     */
     bool printlnf(const char* format, ...);
 

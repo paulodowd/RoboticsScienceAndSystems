@@ -8,8 +8,8 @@
  * @brief Converts measured encoder changes to pose using first-order Euler.
  *
  * This is a student-editable model, independent of the 32U4 pose estimate.
- * Its nominal geometry matches the Processing demonstration; calibrate it
- * against physical distance and heading observations for your own robot.
+ * Its defaults are nominal starting values rather than calibrated geometry;
+ * compare and revise them using physical distance and heading observations.
  * Positive wheel counts mean forward travel. At heading zero, forward is +x;
  * positive heading turns towards +y (anticlockwise when viewed from above).
  */

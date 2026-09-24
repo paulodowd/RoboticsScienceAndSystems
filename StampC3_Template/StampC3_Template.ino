@@ -24,18 +24,19 @@ void setup() {
   Serial.begin(115200);
   server.begin();
 
-  robot.initialise(/*"your_teamname"*/);
+  robot.initialise();
+//  robot.initialise("team name");
 
 
   // Robot_c starts the shared I2C bus before RobotIMU_c uses it. IMU readings
   // come directly from the sensor ICs and do not pass through the middleware.
   if (!imu.initialise() ) {
     Serial.println("Warning: LSM6DS33 IMU was not detected.");
+    robot.setLED( 90, 50, 0, 100 ); // orange warning
   }
-  robot.setPose(0.0f, 0.0f, 0.0f);
-
 
 }
+
 
 /** @brief Maintains telemetry transport and runs the controller repeatedly. */
 void loop() {
@@ -43,8 +44,9 @@ void loop() {
   // controller continues to run even when no client is connected.
   server.update();
 
+  
   // Run an iteration of the robot controller code.
-  // You shoul develop further code within Controller.h
+  // Develop controller routines in Controller.cpp; edit parameters in Controller.h.
   controller.update(robot, server);
 
 }

@@ -1,5 +1,14 @@
 #include "RobotIMU.h"
 
+namespace {
+// Choose a 104 Hz sensor output rate close to the controller's nominal 100 Hz
+// update rate. This configures the sensors only: the supplied controller does
+// not read the IMU. Investigation code must call isSampleReady() and read().
+constexpr uint8_t LSM6_ACCELEROMETER_104_HZ_2_G = 0x40;
+constexpr uint8_t LSM6_GYROSCOPE_104_HZ_245_DPS = 0x40;
+constexpr uint8_t LSM6_BLOCK_UPDATE_AND_AUTO_INCREMENT = 0x44;
+}
+
 RobotIMU_c::RobotIMU_c()
   : lsm6_available(false),
     magnetometer_available(false),
@@ -11,7 +20,22 @@ bool RobotIMU_c::initialise() {
   lsm6.setBus(&Wire);
   lsm6_available = lsm6.init(LSM6::device_DS33, LSM6::sa0_auto);
   if (lsm6_available) {
+    // Establish the library's known baseline, then replace its 1.66 kHz output
+    // rates with settings suited to polling near the controller's 10 ms interval.
+    // This does not add IMU acquisition to the controller.
     lsm6.enableDefault();
+    lsm6.writeReg(
+      LSM6::CTRL1_XL,
+      LSM6_ACCELEROMETER_104_HZ_2_G
+    );
+    lsm6.writeReg(
+      LSM6::CTRL2_G,
+      LSM6_GYROSCOPE_104_HZ_245_DPS
+    );
+    lsm6.writeReg(
+      LSM6::CTRL3_C,
+      LSM6_BLOCK_UPDATE_AND_AUTO_INCREMENT
+    );
   }
 
   // The Pololu LIS3MDL library uses the default Wire bus, which is also the

@@ -21,8 +21,6 @@ typedef uint8_t RobotRegister_t;
 #define REGISTER_NULL 0x00
 /** @brief Requests one RobotSurface_t snapshot. */
 #define REGISTER_GET_SURFACE 0x01
-/** @brief Reserved bump-sensor request. */
-#define REGISTER_GET_BUMP 0x02
 /** @brief Requests one RobotEncoders_t snapshot. */
 #define REGISTER_GET_ENCODERS 0x03
 /** @brief Requests one RobotPose_t snapshot. */
@@ -45,6 +43,10 @@ typedef uint8_t RobotRegister_t;
 #define REGISTER_START_SELF_TEST 0x0C
 /** @brief Requests the most recent RobotSelfTestResult_t snapshot. */
 #define REGISTER_GET_SELF_TEST 0x0D
+/** @brief Sets the geometry used to calculate future helper-motion targets. */
+#define REGISTER_SET_MOTION_GEOMETRY 0x0E
+/** @brief Requests the geometry currently used by the motion helpers. */
+#define REGISTER_GET_MOTION_GEOMETRY 0x0F
 
 /** @brief No helper motion has been requested since reset. */
 #define MOTION_STATUS_IDLE 0x00
@@ -54,7 +56,7 @@ typedef uint8_t RobotRegister_t;
 #define MOTION_STATUS_COMPLETE 0x02
 /** @brief The helper stopped after its safety timeout. */
 #define MOTION_STATUS_TIMEOUT 0x03
-/** @brief A later ordinary motor command interrupted the helper. */
+/** @brief A later ordinary motor command or self-test interrupted the helper. */
 #define MOTION_STATUS_CANCELLED 0x04
 
 /** @brief No helper motion mode is associated with the status. */
@@ -63,6 +65,11 @@ typedef uint8_t RobotRegister_t;
 #define MOTION_MODE_DISTANCE 0x01
 /** @brief The helper is carrying out a nominal in-place rotation. */
 #define MOTION_MODE_ROTATION 0x02
+
+/** @brief Maximum magnitude accepted for one relative distance request. */
+#define MOTION_REQUEST_MAX_ABS_DISTANCE_MM 2000.0f
+/** @brief Maximum magnitude accepted for one relative rotation request. */
+#define MOTION_REQUEST_MAX_ABS_ANGLE_RAD 6.2831853071795864769f
 
 /** @brief No self-test has run since reset. */
 #define SELF_TEST_STATUS_IDLE 0x00
@@ -77,7 +84,8 @@ typedef uint8_t RobotRegister_t;
  * @brief Five-channel downward surface-sensor snapshot.
  *
  * @var RobotSurface_t::timestamp_us Timestamp supplied by the robot interface.
- * @var RobotSurface_t::reading Five raw surface-reading values.
+ * @var RobotSurface_t::reading Five surface values published by the robot
+ * middleware. These are interface readings, not necessarily raw sensor values.
  */
 typedef struct {
   uint32_t timestamp_us;
@@ -131,6 +139,17 @@ typedef struct {
 typedef struct {
   float angle_rad;
 } RobotMotionRotation_t;
+
+/**
+ * @brief Geometry used only to calculate motion-helper encoder targets.
+ * @note Updating this structure does not alter the middleware pose estimate.
+ * Encoder resolution remains fixed at the documented 358.3 counts/revolution.
+ */
+typedef struct {
+  float left_wheel_radius_mm;
+  float right_wheel_radius_mm;
+  float wheel_separation_mm;
+} RobotMotionGeometry_t;
 
 /**
  * @brief Snapshot of the most recently requested helper motion.

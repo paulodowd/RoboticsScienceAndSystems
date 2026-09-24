@@ -14,6 +14,8 @@ class RobotSimulation_c {
   /** @brief Simulated clock, advanced explicitly in milliseconds. */
   long simulationMillis = 0;
   PImage surfaceImage;
+  final float surfaceOffsetX;
+  final float surfaceOffsetY;
   RobotSurface_c surface = new RobotSurface_c();
   MotorsModel_c motors = new MotorsModel_c();
   OdometryModel_c odometry;
@@ -23,18 +25,23 @@ class RobotSimulation_c {
    * @param wheelRadiusMmIn Wheel radius used by the odometry model, in mm.
    * @param wheelSeparationMmIn Distance between wheels, in mm.
    * @param surfaceIn Environment image sampled by the five surface sensors.
+   * @param surfaceOffsetXIn Surface-image x offset in world millimetres.
+   * @param surfaceOffsetYIn Surface-image y offset in world millimetres.
    */
   RobotSimulation_c(float wheelRadiusMmIn, float wheelSeparationMmIn,
-    PImage surfaceIn) {
+    PImage surfaceIn, float surfaceOffsetXIn, float surfaceOffsetYIn) {
     wheelRadiusMm = wheelRadiusMmIn;
     wheelSeparationMm = wheelSeparationMmIn;
     surfaceImage = surfaceIn;
+    surfaceOffsetX = surfaceOffsetXIn;
+    surfaceOffsetY = surfaceOffsetYIn;
     odometry = new OdometryModel_c(wheelRadiusMm, encoderCountsPerRevolution);
     sensors[0] = new SurfaceSensorModel_c("DN1", 45, 45);
     sensors[1] = new SurfaceSensorModel_c("DN2", 45, 14);
     sensors[2] = new SurfaceSensorModel_c("DN3", 45, 0);
     sensors[3] = new SurfaceSensorModel_c("DN4", 45, -14);
     sensors[4] = new SurfaceSensorModel_c("DN5", 45, -45);
+    odometry.reset(0.0,0.0, -PI/2.0, 0.0, 0.0);
   }
 
   /** @return Current simulated time in milliseconds. */
@@ -48,8 +55,8 @@ class RobotSimulation_c {
   void getSurfaceSensors() {
     RobotPose_c pose = odometry.pose;
     for (int i = 0; i < sensors.length; i++) {
-      surface.reading[i] = sensors[i].sample(surfaceImage, pose.x, pose.y,
-        pose.theta);
+      surface.reading[i] = sensors[i].sample(surfaceImage, surfaceOffsetX,
+        surfaceOffsetY, pose.x, pose.y, pose.theta);
     }
   }
 
@@ -59,8 +66,8 @@ class RobotSimulation_c {
   void getPose() { }
 
   /** @brief Stores requested left and right motor PWM values.
-   * @param leftPwm Requested left PWM, nominally -400 to +400.
-   * @param rightPwm Requested right PWM, nominally -400 to +400.
+   * @param leftPwm Requested left PWM, nominally -200 to +200.
+   * @param rightPwm Requested right PWM, nominally -200 to +200.
    */
   void setMotorPWM(float leftPwm, float rightPwm) {
     motors.setPWM(leftPwm, rightPwm);

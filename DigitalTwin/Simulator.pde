@@ -20,6 +20,10 @@ class Simulator {
   final float maximumZoom = 4.0;
   final int SANDBOX = 0, LIVE_COMPARISON = 1;
 
+  /** @brief Surface-image centre in world coordinates, in mm. */
+  final float surfaceOffsetX;
+  final float surfaceOffsetY;
+
   PImage surfaceImage;
   // Cache only the currently visible part of the 1 px/mm map. This avoids
   // redrawing the complete source image at 1:1 scale.
@@ -68,13 +72,18 @@ class Simulator {
   /**
    * @brief Creates the supplied baseline Digital Twin application.
    * @param appletIn Parent Processing application used for networking.
+   * @param surfaceOffsetXIn Surface-image x offset in world millimetres.
+   * @param surfaceOffsetYIn Surface-image y offset in world millimetres.
    */
-  Simulator(PApplet appletIn) {
+  Simulator(PApplet appletIn, float surfaceOffsetXIn, float surfaceOffsetYIn) {
     applet = appletIn;
+    surfaceOffsetX = surfaceOffsetXIn;
+    surfaceOffsetY = surfaceOffsetYIn;
     ellipseMode(RADIUS);
     strokeJoin(ROUND);
     surfaceImage = loadSurfaceImage();
-    robot = new RobotSimulation_c(16.0, 86.18, surfaceImage);
+    robot = new RobotSimulation_c(16.0, 90.00, surfaceImage,
+      surfaceOffsetX, surfaceOffsetY);
     controller = new Controller_c();
     controller.setSignal(1); // Sandbox starts immediately.
     lastSimulationUpdateMs = millis();
@@ -165,13 +174,18 @@ class Simulator {
 
   void updateSurfaceViewportCache() {
     // Convert the visible world rectangle to source-image pixels. The image
-    // is centred on (0, 0), and its y axis is opposite the world y axis.
+    // is centred on the configured offset, and its y axis is opposite the
+    // world y axis.
     float halfViewWidth = width / (2.0 * zoom);
     float halfViewHeight = height / (2.0 * zoom);
-    int visibleX0 = floor(surfaceImage.width / 2.0 + viewCentreX - halfViewWidth);
-    int visibleX1 = ceil(surfaceImage.width / 2.0 + viewCentreX + halfViewWidth);
-    int visibleY0 = floor(surfaceImage.height / 2.0 - viewCentreY - halfViewHeight);
-    int visibleY1 = ceil(surfaceImage.height / 2.0 - viewCentreY + halfViewHeight);
+    int visibleX0 = floor(surfaceImage.width / 2.0
+      + viewCentreX - surfaceOffsetX - halfViewWidth);
+    int visibleX1 = ceil(surfaceImage.width / 2.0
+      + viewCentreX - surfaceOffsetX + halfViewWidth);
+    int visibleY0 = floor(surfaceImage.height / 2.0
+      - viewCentreY + surfaceOffsetY - halfViewHeight);
+    int visibleY1 = ceil(surfaceImage.height / 2.0
+      - viewCentreY + surfaceOffsetY + halfViewHeight);
 
     visibleX0 = constrain(visibleX0, 0, surfaceImage.width);
     visibleX1 = constrain(visibleX1, 0, surfaceImage.width);
@@ -206,8 +220,9 @@ class Simulator {
   void drawSurfaceViewportCache() {
     if (surfaceViewportCache == null) return;
 
-    float worldX = surfaceCacheX + surfaceCacheWidth / 2.0 - surfaceImage.width / 2.0;
-    float worldY = surfaceImage.height / 2.0
+    float worldX = surfaceOffsetX + surfaceCacheX + surfaceCacheWidth / 2.0
+      - surfaceImage.width / 2.0;
+    float worldY = surfaceOffsetY + surfaceImage.height / 2.0
       - (surfaceCacheY + surfaceCacheHeight / 2.0);
     image(surfaceViewportCache, worldX, worldY);
   }
@@ -381,7 +396,7 @@ class Simulator {
 
   /**
    * @brief Loads surface.png or creates the supplied A3 circular-line fallback.
-   * @return A 1 pixel/mm surface image centred on the world origin.
+   * @return A 1 pixel/mm surface image positioned using the configured offset.
    */
   PImage loadSurfaceImage() {
     PImage image = loadImage("surface.png");

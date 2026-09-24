@@ -9,6 +9,7 @@ Robot_c::Robot_c() {
   memset(&buzzer, 0, sizeof(buzzer));
   memset(&pose, 0, sizeof(pose));
   memset(&motion_status, 0, sizeof(motion_status));
+  memset(&motion_geometry, 0, sizeof(motion_geometry));
   memset(&self_test, 0, sizeof(self_test));
   button_debounce_ts = millis();
 }
@@ -20,7 +21,7 @@ void Robot_c::initialise() {
   pinMode(3, INPUT_PULLUP);
 }
 
-bool Robot_c::initialise(char* teamname_in) {
+bool Robot_c::initialise(const char* teamname_in) {
   initialise();
   delay(50);
   return setTeamname(teamname_in);
@@ -58,15 +59,44 @@ bool Robot_c::getPose() {
 }
 
 bool Robot_c::startMoveDistance(float distance_mm) {
+  if (!isfinite(distance_mm)
+      || fabsf(distance_mm) > MOTION_REQUEST_MAX_ABS_DISTANCE_MM) {
+    return false;
+  }
+
   RobotMotionDistance_t request_data;
   request_data.distance_mm = distance_mm;
   return sendMotionRequest(REGISTER_SET_MOTION_DISTANCE, request_data);
 }
 
 bool Robot_c::startRotateAngle(float angle_rad) {
+  if (!isfinite(angle_rad)
+      || fabsf(angle_rad) > MOTION_REQUEST_MAX_ABS_ANGLE_RAD) {
+    return false;
+  }
+
   RobotMotionRotation_t request_data;
   request_data.angle_rad = angle_rad;
   return sendMotionRequest(REGISTER_SET_MOTION_ROTATION, request_data);
+}
+
+bool Robot_c::setMotionHelperGeometry(
+  float left_wheel_radius_mm,
+  float right_wheel_radius_mm,
+  float wheel_separation_mm
+) {
+  RobotMotionGeometry_t requested_geometry;
+  requested_geometry.left_wheel_radius_mm = left_wheel_radius_mm;
+  requested_geometry.right_wheel_radius_mm = right_wheel_radius_mm;
+  requested_geometry.wheel_separation_mm = wheel_separation_mm;
+  return writeRegisterPayload(
+    REGISTER_SET_MOTION_GEOMETRY,
+    requested_geometry
+  );
+}
+
+bool Robot_c::getMotionHelperGeometry() {
+  return requestSnapshot(REGISTER_GET_MOTION_GEOMETRY, motion_geometry);
 }
 
 bool Robot_c::getMotionStatus() {
@@ -120,8 +150,24 @@ int16_t Robot_c::getRightMotorPWM() {
   return motors.pwm[1];
 }
 
-bool Robot_c::setTeamname(char* teamname_in) {
-  RobotTeamname_t new_teamname;
+bool Robot_c::setTeamname(const char* teamname_in) {
+  if (teamname_in == nullptr || teamname_in[0] == '\0') {
+    return false;
+  }
+
+  // Reject control characters and non-ASCII bytes. This catches accidental
+  // escape sequences such as "\0123456", whose first byte is a newline rather
+  // than the character '0'. Ordinary printable legacy names remain valid.
+  for (size_t i = 0; teamname_in[i] != '\0'; i++) {
+    uint8_t character = static_cast<uint8_t>(teamname_in[i]);
+    if (character < 32 || character > 126) {
+      return false;
+    }
+  }
+
+  // The whole fixed-size object is transmitted, so initialise bytes after the
+  // terminator as well as the visible string.
+  RobotTeamname_t new_teamname = {};
   snprintf(new_teamname, sizeof(new_teamname), "%s", teamname_in);
   if (!writeRegisterPayload(REGISTER_SET_TEAMNAME, new_teamname)) return false;
 
@@ -140,11 +186,16 @@ bool Robot_c::setMotorPWM(float l, float r) {
 }
 
 bool Robot_c::setPose(float x, float y, float theta) {
+  if (!isfinite(x) || !isfinite(y) || !isfinite(theta)) return false;
+
   RobotPose_t new_pose;
   new_pose.x = x;
   new_pose.y = y;
   new_pose.theta = theta;
-  return writeRegisterPayload(REGISTER_SET_POSE, new_pose);
+  if (!writeRegisterPayload(REGISTER_SET_POSE, new_pose)) return false;
+
+  pose = new_pose;
+  return true;
 }
 
 bool Robot_c::playTone(uint16_t freq, uint16_t duration_ms) {

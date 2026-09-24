@@ -5,7 +5,7 @@
  */
 class MotorsModel_c {
   // Deliberately simple starting assumption for student-led refinement.
-  final float maximumWheelSpeedMmPerMs = 0.5;
+  final float maximumWheelSpeedMmPerMs = 0.25;
   MotorModel_c left = new MotorModel_c();
   MotorModel_c right = new MotorModel_c();
 
@@ -27,13 +27,13 @@ class MotorModel_c {
   float pwm = 0;
   float speedMmPerMs = 0;
 
-  /** @brief Limits and stores a requested PWM value in [-400, +400]. */
-  void setPWM(float value) { pwm = constrain(value, -400, 400); }
+  /** @brief Limits and stores a requested PWM value in [-200, +200]. */
+  void setPWM(float value) { pwm = constrain(value, -200, 200); }
 
   /** @brief Maps the requested PWM linearly to wheel speed.
    * @param maximumSpeed Maximum wheel speed in mm/ms.
    */
   void update(float maximumSpeed) {
-    speedMmPerMs = map(pwm, -400, 400, -maximumSpeed, maximumSpeed);
+    speedMmPerMs = map(pwm, -200, 200, -maximumSpeed, maximumSpeed);
   }
 }
