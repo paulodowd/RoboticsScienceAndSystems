@@ -1,14 +1,25 @@
 import socket
 import logging
 import errno
+from rich.table import Table
+from rich.live import Live
+from rich.logging import RichHandler
 
 # Robot: "192.168.4.1", 80. Local test with nc: "127.0.0.1", 9000.
-HOST = "127.0.0.1"
-PORT = 9000
+HOST = "192.168.4.1"
+PORT = 80
 TIMEOUT_S = 3
-NUM_FIELDS = 14
+
+# Field order sent by Controller_c::publishTelemetry (see Controller.h).
+COLUMNS = [
+    "t_ms", "x_mm", "y_mm", "theta_rad",
+    "pwm_left", "pwm_right", "enc_left", "enc_right",
+    "dn1", "dn2", "dn3", "dn4", "dn5", "signal",
+]
+NUM_FIELDS = len(COLUMNS)
 
 log = logging.getLogger(__name__)
+
 
 def parse_line(line):
     fields = line.split(",")
@@ -26,10 +37,27 @@ def parse_line(line):
 
     return fields
 
+
+def make_table(fields):
+    """Builds the dashboard from the latest record, or a placeholder before the first one."""
+    table = Table(title="SLAMDunk telemetry")
+    table.add_column("Field")
+    table.add_column("Value", justify="right")
+
+    if fields is None:
+        table.add_row("status", "waiting for data...")
+        return table
+
+    for name, value in zip(COLUMNS, fields):
+        table.add_row(name, value)
+    return table
+
+
 def main():
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s %(levelname)-7s %(message)s",
+        format="%(message)s",
+        handlers=[RichHandler()],
     )
 
     try:
@@ -48,33 +76,35 @@ def main():
         return
 
     buffer = b""
+    latest = None
 
-    while True:
-        try:
-            data = sock.recv(4096)
-            if not data:
-                raise ConnectionError("Closed by the server.")
+    with Live(make_table(latest), refresh_per_second=10) as live:
+        while True:
+            try:
+                data = sock.recv(4096)
+                if not data:
+                    raise ConnectionError("Closed by the server.")
 
-        except socket.timeout:
-            log.error("no data for %s s: robot reset or out of range.", TIMEOUT_S)
-            break
-        except ConnectionError as e:
-            log.info("connection ended: %s", e)
-            break
-        except OSError:
-            log.exception("unexpected error while reading")
-            break
+            except socket.timeout:
+                log.error("no data for %s s: robot reset or out of range.", TIMEOUT_S)
+                break
+            except ConnectionError as e:
+                log.info("connection ended: %s", e)
+                break
+            except OSError:
+                log.exception("unexpected error while reading")
+                break
 
-        buffer += data
-        parts = buffer.split(b"\n")
+            buffer += data
+            parts = buffer.split(b"\n")
+            for line in parts[:-1]:
+                text = line.decode("utf-8", errors="replace").strip()
+                fields = parse_line(text)
+                if fields is not None:
+                    latest = fields
+            buffer = parts[-1]
 
-        for line in parts[:-1]:
-            text = line.decode("utf-8", errors="replace").strip()
-            fields = parse_line(text)
-            if fields is not None:
-                print(text)     
-
-        buffer = parts[-1]
+            live.update(make_table(latest))
 
     if buffer:
         log.warning("discarding incomplete last line: %r", buffer)
