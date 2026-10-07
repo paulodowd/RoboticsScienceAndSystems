@@ -18,14 +18,20 @@ class Controller_c {
   final float RECOVERY_RIGHT_PWM = 35.0;
   final int WAITING = 0, FOLLOWING = 1, SEARCHING = 2, STOPPED = 3;
   int signal = 0, mode = WAITING;
-  long lastUpdateMs = 0, lastTelemetryMs = 0, recoveryStartMs = 0;
+  long recoveryStartMs = 0;
+
+  /** @brief TaskTimer_c to keep aligned with code from Arduino platform */
+  TaskTimer_c update_timer = new TaskTimer_c( UPDATE_INTERVAL_MS );
+  TaskTimer_c telemetry_timer = new TaskTimer_c( TELEMETRY_INTERVAL_MS );
+  
 
   /** @brief Returns the controller to its inactive waiting state. */
   void reset() {
     signal = 0;
     mode = WAITING;
-    lastUpdateMs = lastTelemetryMs = recoveryStartMs = 0;
+    recoveryStartMs = 0;
   }
+  
   /** @return The latched start signal: 0 while waiting, 1 once started. */
   int getSignal() {
     return signal;
@@ -53,23 +59,36 @@ class Controller_c {
    */
   void update(RobotSimulation_c robot) {
     long now = robot.getMillis();
-    if (now - lastUpdateMs < UPDATE_INTERVAL_MS) return;
-    lastUpdateMs = now;
+    
+    if( !update_timer.isReady(now) ) {
+      return;
+    }
+    
+    update_timer.resetTimer( now );
+
     robot.getSurfaceSensors();
     robot.getEncoders();
     robot.getPose();
-    if (signal == 1) runLineFollower(robot, now);
-    else robot.setMotorPWM(0, 0);
-    if (now - lastTelemetryMs >= TELEMETRY_INTERVAL_MS) {
-      lastTelemetryMs = now;
-      publishTelemetry(robot);
+    
+    if (signal == 1) {
+      runLineFollower(robot, now);
+    }
+    
+    if( telemetry_timer.isReady(now) ) {
+      telemetry_timer.resetTimer(now);
+      publishTelemetry(robot); // Note: in simulation this is a dummy call
     }
   }
+  
+  
+  
   /** @brief Tests whether any surface channel is at or above the line threshold. */
   boolean lineDetected(RobotSimulation_c robot) {
     if (robot.surface.reading[2] >= LINE_THRESHOLD) return true;
     return false;
   }
+  
+  
   /** @brief Applies following, search, or stopped motor commands. */
   void runLineFollower(RobotSimulation_c robot, long now) {
     boolean detected = lineDetected(robot);
