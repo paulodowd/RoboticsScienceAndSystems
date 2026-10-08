@@ -4,7 +4,7 @@
  * models. Its public methods deliberately mirror the subset of Robot_c used
  * by Controller_c, while the model components remain visible for revision.
  */
-class RobotSimulation_c {
+class Robot_c {
   /** @brief Radius used only to draw the robot body, in mm. */
   final float bodyRadiusMm = 50.0;
   final float wheelRadiusMm;
@@ -28,7 +28,7 @@ class RobotSimulation_c {
    * @param surfaceOffsetXIn Surface-image x offset in world millimetres.
    * @param surfaceOffsetYIn Surface-image y offset in world millimetres.
    */
-  RobotSimulation_c(float wheelRadiusMmIn, float wheelSeparationMmIn,
+  Robot_c(float wheelRadiusMmIn, float wheelSeparationMmIn,
     PImage surfaceIn, float surfaceOffsetXIn, float surfaceOffsetYIn) {
     wheelRadiusMm = wheelRadiusMmIn;
     wheelSeparationMm = wheelSeparationMmIn;
