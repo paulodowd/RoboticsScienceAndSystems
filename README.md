@@ -1,2 +1,3 @@
 # RoboticsScienceAndSystems
-Platforms for teaching Robotics Science and Systems
+### Team Ctrl+Alt+Delete
+This repository contains the group work for the Robotics Science and Systems Module 2026.
